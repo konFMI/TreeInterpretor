@@ -3,20 +3,13 @@
 
 void Engine::Run(){
     engine_request_t request;
-    int result = ReadRequest(request); 
+    int result = 0;
 
-    while(result == 0)
-    {
-        result = ExecuteRequest(request);
-        if (result == 0)
-        {
-            result = ReadRequest(request);
-        }
+    while(((result = ReadRequest(request))   == 0) &&
+          ((result = ExecuteRequest(request) == 0)));
 
-        if (result != 0)
-        {
-            TerminateProgram();
-        }
+    if (result != 0) {
+        TerminateProgram();
     }
 }
 
