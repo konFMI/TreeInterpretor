@@ -48,8 +48,16 @@ void Engine::Run(){
     engine_request_t request;
     EngineResult result = Success;
 
-    while(((result = ReadRequest(request))   == Success) &&
-          ((result = ExecuteRequest(request)) == Success));
+    // todo: Should wrap up the end condition.
+    do
+    {
+
+        while(((result = ReadRequest(request))   == Success) &&
+              ((result = ExecuteRequest(request)) == Success)) {
+              }
+
+    } while ((result != EngineResult::Exit) &&
+             (result != EngineResult::Abort));
 
     TerminateProgram();
 }
@@ -74,32 +82,24 @@ EngineResult Engine::ExecuteRequest(engine_request_t &request){
 
     EngineResult result = Success;
 
+
     switch (request.params.job)
     {
     case JOB::LOAD:
         result = Load(request.params.data[0],
                       request.params.data[1]);
-        /* code */
         break;
     
     case JOB::SAVE:
         result = Save(request.params.data[0],
                       request.params.data[1]);
-        /* code */
         break;
     
     case JOB::CONTAINS:
         {
             auto sTree1 = request.params.data[0];
             auto sTree2 = request.params.data[1];
-            if (ExistTree(sTree1) && ExistTree(sTree2)) {
-                result = Contains(m_enumarate_trees[sTree1],
-                                  m_enumarate_trees[sTree2]);
-            } else 
-            {
-                //todo
-            }
-            /* code */
+            result = Contains(sTree1, sTree2);
         }
         break;
     
@@ -107,20 +107,15 @@ EngineResult Engine::ExecuteRequest(engine_request_t &request){
         {
             auto sTree1 = request.params.data[0];
             auto sTree2 = request.params.data[1];
-            if (ExistTree(sTree1) && ExistTree(sTree2)) {
-                result = Remove(m_enumarate_trees[sTree1],
-                                  m_enumarate_trees[sTree2]);
-            } else 
-            {
-                //todo
-            }
-            /* code */
+            result = Remove(sTree1, sTree2);
         }
         break;
     
     case JOB::EXIT:
         result = Exit();
-        /* code */
+        break;
+    case JOB::HELP:
+        result = Help();
         break;
     default:
         break;
@@ -134,12 +129,12 @@ EngineResult Engine::ExecuteRequest(engine_request_t &request){
 EngineResult Engine::ConfigureRequest(engine_request_t &request, std::vector<std::string> &params) {
     ENTER_BLOCK;
 
-    
     EngineResult result = VerifyParams(params);
 
     if (result == Success)
     {
-        request.params.job = m_enumarete_jobs[params[0]];
+        std::string job = params[0];
+        request.params.job = m_enumarete_jobs[job];
         request.params.data = params;
     } else 
     {
@@ -168,10 +163,9 @@ EngineResult Engine::VerifyParams(std::vector<std::string> &params) {
     {
         result = Success;
     }
-
-    if (result != Success)
-    {
-        PrintErrorMessage("Invalid command.");
+    else {
+        PRINT("Invalid command.");
+        result = InvalidInput;
     }
 
     return result;
@@ -212,7 +206,11 @@ EngineResult Engine::Load(std::string treeName, std::string fileName) {
     if (ExistTree(treeName)) {
         m_enumarate_trees[treeName].Clear();
     }
-
+    else
+    {
+        PRINT("Tree does not exist.");
+        result = InvalidInput;
+    }
     m_enumarate_trees[treeName].Import(fileName);
 
     return result;
@@ -229,10 +227,10 @@ EngineResult Engine::Save(std::string treeName, std::string fileName) {
             std::ifstream fileToSaveAt(fileName);
 
             if (fileToSaveAt.is_open()) {
-                print("File exists.");
+                PRINT("File exists.");
                 do
                 {
-                    print("Press y/n for override of file..");
+                    PRINT("Press y/n for override of file..");
                     std::getline(std::cin, input);
                 } while (input.length() == 1 &&
                          (input == "y" || input == "n"));
@@ -244,29 +242,55 @@ EngineResult Engine::Save(std::string treeName, std::string fileName) {
         if (input == "y") {
             m_enumarate_trees[treeName].Export(fileName);
         } else {
-            print("Aborting save operation.");
+            PRINT("Aborting save operation.");
             result = EngineResult::Abort;
         }
     }
     else
     {
-        print("Tree does not exist.");
+        PRINT("Tree does not exist.");
         result = InvalidInput;
     }
 
     return result;
 }
 
-EngineResult Engine::Contains(Tree tree1, Tree tree2) {
-    ENTER_BLOCK
+EngineResult Engine::Contains(std::string sTree1, std::string sTree2) {
+    ENTER_BLOCK;
 
     EngineResult result = Success;
+
+    if (ExistTree(sTree1) && ExistTree(sTree2)) {
+        result = (m_enumarate_trees[sTree1].Subtree(m_enumarate_trees[sTree2]))? EngineResult::Success : EngineResult::Fail;
+    } else
+    {
+        PRINT("Tree does not exist.");
+        result = InvalidInput;
+    }
+
+    if (result == EngineResult::Fail)
+    {
+        PRINT("%s does not contain %s as a subtree.", sTree1.c_str(), sTree2.c_str());
+        result = InvalidInput;
+    }
+
     return result;
 }
 
-EngineResult Engine::Remove(Tree tree1, Tree tree2) {
-    ENTER_BLOCK
+EngineResult Engine::Remove(std::string sTree1, std::string sTree2) {
+    ENTER_BLOCK;
     EngineResult result = Success;
+
+    if (Contains(sTree1, sTree2) == EngineResult::Success) {
+        result = (m_enumarate_trees[sTree1].Remove(m_enumarate_trees[sTree2]))? EngineResult::Success : EngineResult::Fail;
+    }
+
+    if (result == EngineResult::Fail)
+    {
+        PRINT("Failed to remove %s from %s", sTree2.c_str(), sTree1.c_str());
+        result = InvalidInput;
+    }
+
     return result;
 }
 

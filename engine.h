@@ -69,9 +69,10 @@ class Engine
 
         EngineResult Load(std::string treeName, std::string fileName);
         EngineResult Save(std::string treeName, std::string fileName);
-        EngineResult Contains(Tree tree1, Tree tree2);
-        EngineResult Remove(Tree tree1, Tree tree2);
+        EngineResult Contains(std::string tree1, std::string tree2);
+        EngineResult Remove(std::string tree1, std::string tree2);
         EngineResult Exit();
+        EngineResult Help();
 
         void TerminateProgram();
 
