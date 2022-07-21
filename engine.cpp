@@ -1,25 +1,9 @@
 #include "engine.h"
-#include <iostream>
-#include <fstream>
+#include "common.h"
 
-#define print(str)(std::cout << str << std::endl)
-class Log {
-    public:
-    Log(std::string funcName) : funcName(funcName) {
-        print("Enter::" + funcName);
-    }
-    ~Log() {
-        print("~Exit::" + funcName);
-    }
-
-    private:
-    std::string funcName;
-};
-
-#define ENTER_BLOCK Log enter_block_logger(__func__);
 
 EngineResult Engine::IsValidCommand(std::string &command) {
-    ENTER_BLOCK
+    ENTER_BLOCK;
     EngineResult result = InvalidInput;
 
     if (m_enumarete_jobs.find(command) != m_enumarete_jobs.end())
@@ -31,7 +15,7 @@ EngineResult Engine::IsValidCommand(std::string &command) {
 }
 
 static EngineResult IsValidTreeName(std::string &name) {
-    ENTER_BLOCK
+    ENTER_BLOCK;
 
     EngineResult result = Success;
 
@@ -46,14 +30,8 @@ static EngineResult IsValidTreeName(std::string &name) {
     return result;
 }
 
-static void PrintErrorMessage(const char *message) {
-    ENTER_BLOCK
-
-    std::cout << "ERROR: " << message << std::endl;
-}
-
 void Engine::Initilize() {
-    ENTER_BLOCK
+    ENTER_BLOCK;
 
     m_enumarete_jobs["load"] = JOB::LOAD;
     m_enumarete_jobs["save"] = JOB::SAVE;
@@ -64,7 +42,8 @@ void Engine::Initilize() {
 }
 
 void Engine::Run(){
-    ENTER_BLOCK
+    ENTER_BLOCK;
+
 
     engine_request_t request;
     EngineResult result = Success;
@@ -76,7 +55,7 @@ void Engine::Run(){
 }
 
 EngineResult Engine::ReadRequest(engine_request_t &request){
-    ENTER_BLOCK
+    ENTER_BLOCK;
 
     EngineResult result = Success;
 
@@ -91,6 +70,8 @@ EngineResult Engine::ReadRequest(engine_request_t &request){
 }
 
 EngineResult Engine::ExecuteRequest(engine_request_t &request){
+    ENTER_BLOCK;
+
     EngineResult result = Success;
 
     switch (request.params.job)
@@ -151,7 +132,7 @@ EngineResult Engine::ExecuteRequest(engine_request_t &request){
 }
 
 EngineResult Engine::ConfigureRequest(engine_request_t &request, std::vector<std::string> &params) {
-    ENTER_BLOCK
+    ENTER_BLOCK;
 
     
     EngineResult result = VerifyParams(params);
@@ -172,7 +153,7 @@ EngineResult Engine::ConfigureRequest(engine_request_t &request, std::vector<std
 }
 
 EngineResult Engine::VerifyParams(std::vector<std::string> &params) {
-    ENTER_BLOCK
+    ENTER_BLOCK;
 
     EngineResult result = InvalidInput;
 
@@ -197,8 +178,7 @@ EngineResult Engine::VerifyParams(std::vector<std::string> &params) {
 }
 
 std::vector<std::string> Engine::ParseInput(std::string input) {
-    ENTER_BLOCK
-
+    ENTER_BLOCK;
 
     std::vector<std::string> params;
 
@@ -225,7 +205,7 @@ std::vector<std::string> Engine::ParseInput(std::string input) {
 }
 
 EngineResult Engine::Load(std::string treeName, std::string fileName) {
-    ENTER_BLOCK
+    ENTER_BLOCK;
 
     EngineResult result = Success;
 
@@ -239,7 +219,7 @@ EngineResult Engine::Load(std::string treeName, std::string fileName) {
 }
 
 EngineResult Engine::Save(std::string treeName, std::string fileName) {
-    ENTER_BLOCK
+    ENTER_BLOCK;
 
     EngineResult result = Success;
 
@@ -291,13 +271,39 @@ EngineResult Engine::Remove(Tree tree1, Tree tree2) {
 }
 
 EngineResult Engine::Exit() {
-    ENTER_BLOCK
+    ENTER_BLOCK;
     EngineResult result = Success;
 
     result = EngineResult::Exit;
     return result;
 }
 
+EngineResult Engine::Help() {
+    ENTER_BLOCK;
+    EngineResult result = Success;
+    const char *msg = "*************************************************************\n"\
+                      "*                      Project tree                         *\n"\
+                      "*                                                           *\n"\
+                      "* Brief: This is an interpreter for basic tree commands.    *\n"\
+                      "*                                                           *\n"\
+                      "* Commands:                                                 *\n"\
+                      "*                                                           *\n"\
+                      "* load treeName fileName : Load tree from file.             *\n"\
+                      "* save treeName fileName : Saves tree to file.              *\n"\
+                      "* contains tree1 tree2   : Checks if tree1                  *\n"\
+                      "*                          contains tree2 as a subtree.     *\n"\
+                      "* remove tree1 tree2     : Removes from tree1 tree2 if      *\n"\
+                      "*                          present.                         *\n"\
+                      "* exit                   : Exits the program.               *\n"\
+                      "* help                   : Print this message.              *\n"\
+                      "*                                                           *\n"\
+                      "*************************************************************";
+
+    PRINT("%s", msg);
+
+    return result;
+}
+
 void Engine::TerminateProgram(){
-    ENTER_BLOCK
+    ENTER_BLOCK;
 }
