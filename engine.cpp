@@ -33,12 +33,12 @@ static EngineResult IsValidTreeName(std::string &name) {
 void Engine::Initilize() {
     ENTER_BLOCK;
 
-    m_enumarete_jobs["load"] = JOB::LOAD;
-    m_enumarete_jobs["save"] = JOB::SAVE;
-    m_enumarete_jobs["contains"] = JOB::CONTAINS;
-    m_enumarete_jobs["remove"] = JOB::REMOVE;
-    m_enumarete_jobs["exit"] = JOB::EXIT;
-    m_enumarete_jobs["help"] = JOB::HELP;
+    m_enumarete_jobs["LOAD"] = JOB::LOAD;
+    m_enumarete_jobs["SAVE"] = JOB::SAVE;
+    m_enumarete_jobs["CONTAINS"] = JOB::CONTAINS;
+    m_enumarete_jobs["REMOVE"] = JOB::REMOVE;
+    m_enumarete_jobs["EXIT"] = JOB::EXIT;
+    m_enumarete_jobs["HELP"] = JOB::HELP;
 }
 
 void Engine::Run(){
@@ -82,33 +82,27 @@ EngineResult Engine::ExecuteRequest(engine_request_t &request){
 
     EngineResult result = Success;
 
+    // The check if these elements are available is
+    // already done in ConfigureRequest().
+    auto arg1 = request.params.data[1];
+    auto arg2 = request.params.data[2];
 
     switch (request.params.job)
     {
     case JOB::LOAD:
-        result = Load(request.params.data[0],
-                      request.params.data[1]);
+        result = Load(arg1,arg2);
         break;
     
     case JOB::SAVE:
-        result = Save(request.params.data[0],
-                      request.params.data[1]);
+        result = Save(arg1,arg2);
         break;
     
     case JOB::CONTAINS:
-        {
-            auto sTree1 = request.params.data[0];
-            auto sTree2 = request.params.data[1];
-            result = Contains(sTree1, sTree2);
-        }
+        result = Contains(arg1,arg2);
         break;
     
     case JOB::REMOVE:
-        {
-            auto sTree1 = request.params.data[0];
-            auto sTree2 = request.params.data[1];
-            result = Remove(sTree1, sTree2);
-        }
+        result = Remove(arg1,arg2);
         break;
     
     case JOB::EXIT:
@@ -242,7 +236,7 @@ EngineResult Engine::Save(std::string treeName, std::string fileName) {
         if (input == "y") {
             m_enumarate_trees[treeName].Export(fileName);
         } else {
-            PRINT("Aborting save operation.");
+            PRINT("Aborting SAVE operation.");
             result = EngineResult::Abort;
         }
     }
@@ -287,7 +281,7 @@ EngineResult Engine::Remove(std::string sTree1, std::string sTree2) {
 
     if (result == EngineResult::Fail)
     {
-        PRINT("Failed to remove %s from %s", sTree2.c_str(), sTree1.c_str());
+        PRINT("Failed to REMOVE %s from %s", sTree2.c_str(), sTree1.c_str());
         result = InvalidInput;
     }
 
@@ -312,14 +306,14 @@ EngineResult Engine::Help() {
                       "*                                                           *\n"\
                       "* Commands:                                                 *\n"\
                       "*                                                           *\n"\
-                      "* load treeName fileName : Load tree from file.             *\n"\
-                      "* save treeName fileName : Saves tree to file.              *\n"\
-                      "* contains tree1 tree2   : Checks if tree1                  *\n"\
-                      "*                          contains tree2 as a subtree.     *\n"\
-                      "* remove tree1 tree2     : Removes from tree1 tree2 if      *\n"\
+                      "* LOAD treeName fileName : Load tree from file.             *\n"\
+                      "* SAVE treeName fileName : Saves tree to file.              *\n"\
+                      "* CONTAINS tree1 tree2   : Checks if tree1                  *\n"\
+                      "*                          CONTAINS tree2 as a subtree.     *\n"\
+                      "* REMOVE tree1 tree2     : Removes from tree1 tree2 if      *\n"\
                       "*                          present.                         *\n"\
-                      "* exit                   : Exits the program.               *\n"\
-                      "* help                   : Print this message.              *\n"\
+                      "* EXIT                   : Exits the program.               *\n"\
+                      "* HELP                   : Print this message.              *\n"\
                       "*                                                           *\n"\
                       "*************************************************************";
 

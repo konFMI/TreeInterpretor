@@ -43,13 +43,13 @@ static const char* file_name(const char* path) {
 #endif
 
 class TimeWrapper {
-    public:
+public:
     TimeWrapper() {
         PrintCurrentTime();
     }
     ~TimeWrapper() {
     }
-    private:
+private:
     void PrintCurrentTime() {
         std::time_t cnow = std::chrono::system_clock::to_time_t(
             std::chrono::system_clock::now());
@@ -58,7 +58,7 @@ class TimeWrapper {
 };
 
 class EntryExit {
-    public:
+public:
     EntryExit(const char* scope, const char* file, int line = 0)
     :   m_scope(scope), m_file(file), m_line(line) {
         TIME_DEBUG("TRACE", m_scope, m_file, m_line, "Enter")
@@ -67,7 +67,7 @@ class EntryExit {
     ~EntryExit() {
         TIME_DEBUG("TRACE", m_scope, m_file, m_line, "Exit")
     }
-    private:
+private:
     const char* m_scope;
     const char* m_file;
     int m_line;

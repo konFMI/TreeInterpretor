@@ -44,7 +44,7 @@ struct session_data_t
 
 class Engine
 {
-    public:
+public:
         Engine(){
             Initilize();
         }
@@ -56,7 +56,7 @@ class Engine
 
         void Run();
 
-    private:
+private:
         void Initilize();
         EngineResult ReadRequest(engine_request_t &request);
         EngineResult ExecuteRequest(engine_request_t &request);
